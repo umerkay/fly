@@ -81,6 +81,6 @@ export const maps = {
     // ...other map configurations can be added here...
 };
 
-export function getCurrentMapConfig(selectedMap = 'desert') {
+export function getCurrentMapConfig(selectedMap = 'mountain') {
     return maps[selectedMap];
 }

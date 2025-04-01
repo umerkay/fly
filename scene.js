@@ -24,7 +24,7 @@ export function createDaySky(state, skyType) {
 
 export function createScene(state) {
     // Use selected map from state (default to "desert" if not defined)
-    const selectedMap = state.selectedMap || 'desert';
+    const selectedMap = state.selectedMap || 'mountain';
     const mapConfig = getCurrentMapConfig(selectedMap);
     loadAircraftModel(state);
     
