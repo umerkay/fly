@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Flight Simulator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Welcome Screen -->
+    <div id="welcome-screen">
+        <h1>Welcome to Flight Simulator</h1>
+        <!-- Map Selector Added -->
+        <select id="map-selector">
+            <option value="desert" selected>Desert</option>
+            <option value="hilly">Hills</option>
+            <option value="mountain">Mountains</option>
+            <option value="snowfield">Snow Field</option>
+        </select>
+        <button id="startButton">Start</button>
+    </div>
+    
+    <!-- Loading Screen -->
+    <div id="loading-screen" style="display: none;">Loading...</div>
+    
+    <!-- Thrust bar on left side -->
+    <div id="thrust-bar-container">
+        <div id="thrust-bar"></div>
+        <div id="thrust-label">THRUST</div>
+    </div>
+
+    <div id="info-ui">
+        <!-- <div>Speed: <span id="speed">0.00</span></div> -->
+        <!-- <div>Thrust: <span id="thrust-value">0.00</span></div> -->
+        <!-- <div>Altitude: <span id="altitude">0.00</span></div> -->
+        <!-- <div>Pitch: <span id="pitch">0.00</span>&deg;</div> -->
+        <!-- <div>Roll: <span id="roll">0.00</span>&deg;</div> -->
+        <!-- <div class="ui-element">Bearing: <span id="bearing">0</span>°</div> -->
+        <div id="message">On Runway. Increase thrust (W) to take off.</div>
+        <button id="restartButton" style="display: none;">Restart</button>
+    </div>
+
+    <!-- Gauges container for bottom right -->
+    <div id="gauges-container">
+        <!-- Speedometer -->
+        <div class="gauge-wrapper" id="speedometer-wrapper">
+            <div class="gauge" id="speedometer">
+                <div class="gauge-center"></div>
+                <div class="gauge-needle" id="speed-needle"></div>
+                <div class="gauge-label">
+                    <span id="speed-value">--</span>
+                    <span class="unit">mph</span>
+                </div>
+                <div class="gauge-ticks">
+                    <div class="tick" style="transform: rotate(-125deg)"><span>0</span></div>
+                    <div class="tick" style="transform: rotate(-100deg)"><span>5</span></div>
+                    <div class="tick" style="transform: rotate(-75deg)"><span>10</span></div>
+                    <div class="tick" style="transform: rotate(-50deg)"><span>15</span></div>
+                    <div class="tick" style="transform: rotate(-25deg)"><span>20</span></div>
+                    <div class="tick" style="transform: rotate(0deg)"><span>25</span></div>
+                    <div class="tick" style="transform: rotate(25deg)"><span>30</span></div>
+                    <div class="tick" style="transform: rotate(50deg)"><span>35</span></div>
+                    <div class="tick" style="transform: rotate(75deg)"><span>40</span></div>
+                    <div class="tick" style="transform: rotate(100deg)"><span>45</span></div>
+                    <div class="tick" style="transform: rotate(125deg)"><span>50</span></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Compass -->
+        <div class="gauge-wrapper" id="compass-wrapper">
+            <div class="gauge" id="compass">
+                <div class="compass-rose">
+                    <div class="compass-direction" id="north">N</div>
+                    <div class="compass-direction" id="east">E</div>
+                    <div class="compass-direction" id="south">S</div>
+                    <div class="compass-direction" id="west">W</div>
+                </div>
+                <div class="compass-pointer"></div>
+                <div class="gauge-center"></div>
+                <div class="gauge-label" >
+                    <span id="heading-label">--</span>
+                    <span class="unit">°</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attitude Indicator -->
+        <div class="gauge-wrapper" id="attitude-indicator-wrapper">
+            <div class="attitude-indicator" id="attitude-indicator">
+                <div class="attitude-horizon" id="horizon"></div>
+                <div class="pitch-markings" id="pitch-markings">
+                    <div class="pitch-marking" data-angle="-20"><span>20</span></div>
+                    <div class="pitch-marking" data-angle="-10"><span>10</span></div>
+                    <div class="pitch-horizon-line"></div>
+                    <div class="pitch-marking" data-angle="10"><span>10</span></div>
+                    <div class="pitch-marking" data-angle="20"><span>20</span></div>
+                </div>
+                <!-- Updated Roll Markings -->
+                <div class="roll-markings" id="roll-markings">
+                    <div class="roll-mark" style="position:absolute; left:35px; top:17px;"></div>
+                    <div class="roll-mark" style="position:absolute; left:42.9px; top:13px;"></div>
+                    <div class="roll-mark" style="position:absolute; left:51.3px; top:10.8px;"></div>
+                    <div class="roll-mark center-roll" style="position:absolute; left:60px; top:10px;"></div>
+                    <div class="roll-mark" style="position:absolute; left:68.7px; top:10.8px;"></div>
+                    <div class="roll-mark" style="position:absolute; left:77.1px; top:13px;"></div>
+                    <div class="roll-mark" style="position:absolute; left:85px; top:17px;"></div>
+                </div>
+                <div class="center-indicator" id="center-indicator"></div>
+                <div class="attitude-frame"></div>
+            </div>
+        </div>
+
+        <!-- Altimeter Gauge -->
+        <div class="gauge-wrapper" id="altimeter-wrapper">
+            <div class="altimeter">
+                <div class="altimeter-dial" id="altimeter-dial">
+                    <div class="altimeter-needle" id="altimeter-needle"></div>
+                </div>
+                <div class="altimeter-label">
+                    <span id="altimeter-value">0</span>
+                    <span class="unit">ft</span>
+                </div>
+                <div class="altimeter-vertical-speed" id="vertical-speed">0.0 ft/s</div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="container"></div>
+
+    <div id="controls">
+        <!-- ...existing controls... -->
+        <button id="nightmodeButton">Night</button>
+        <button id="engineOffButton">Engine Off</button>
+        <button id="parkBrakesButton">Park Brakes</button>
+        <button id="pauseButton">Pause</button>
+    </div>
+
+    <script src="
+    https://cdn.jsdelivr.net/npm/noisejs@2.1.0/index.min.js
+    "></script>
+    <script type="importmap">
+        {
+            "imports": {
+              "three": "https://cdn.jsdelivr.net/npm/three@0.175.0/build/three.module.js",
+              "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.175.0/examples/jsm/"
+            }
+          }
+      </script>
+    <script type="module" src="index.js"></script>
+</body>
+</html>
