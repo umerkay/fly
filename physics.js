@@ -185,7 +185,7 @@ export function updatePhysics(deltaTime, state) {
     }
 
     // --- Terrain Ahead Warning (PULL UP) ---
-    if (!state.aircraft.isOnGround && state.terrainManager) {
+    if (!state.aircraft.isOnGround && !onRunway && state.terrainManager) {
         const forwardDirection = new THREE.Vector3(0, 0, 1).applyQuaternion(state.aircraft.group.quaternion).normalize();
         const checkPoints = [];
         for (let i = 1; i <= 5; i++) {
@@ -200,12 +200,12 @@ export function updatePhysics(deltaTime, state) {
     }
 
     // --- Sink Rate Warning ---
-    if (!state.aircraft.isOnGround && state.aircraft.velocity.y < -state.constants.SINK_RATE_THRESHOLD) { // Sink rate threshold
+    if (!state.aircraft.isOnGround && !onRunway && state.aircraft.velocity.y < -state.constants.SINK_RATE_THRESHOLD) { // Sink rate threshold
         msg = "Sink rate!";
     }
 
     // --- GPWS (Ground Proximity Warning System) ---
-    if (!state.aircraft.isOnGround && state.terrainManager) {
+    if (!state.aircraft.isOnGround && !onRunway && state.terrainManager) {
         const downwardDirection = new THREE.Vector3(0, -1, 0);
         const gpwsPoints = [];
         for (let i = 1; i <= 5; i++) {
