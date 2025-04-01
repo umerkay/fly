@@ -526,3 +526,26 @@ body {
 #welcome-screen select#map-selector:focus {
     border-color: #888;
 }
+
+footer {
+    text-align: center;
+    font-size: 24px;
+    width: 100%;
+    color: white;
+    /* background-color: #f9f9f9; */
+    /* border-top: 1px solid #ddd; */
+    z-index: 2000;
+    position: fixed;
+    top: 20px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+footer a {
+    /* color: #007bff; */
+    text-decoration: underline;
+    color: white;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
