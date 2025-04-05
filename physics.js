@@ -64,6 +64,14 @@ export function updatePhysics(deltaTime, state) {
         forces.add(new THREE.Vector3(0, -state.constants.GRAVITY, 0));
     }
 
+    // --- Apply Damping to Velocity ---
+    const velocityDampingFactor = 0.98; // Adjust this value for smoother velocity damping
+    state.aircraft.velocity.multiplyScalar(velocityDampingFactor);
+
+    // --- Apply Damping to Angular Velocity ---
+    const angularDampingFactor = 0.95; // Adjust this value for smoother angular velocity damping
+    state.aircraft.angularVelocity.multiplyScalar(angularDampingFactor);
+
     // --- Update Velocity ---
     state.aircraft.velocity.addScaledVector(forces, deltaTime);
 
@@ -174,14 +182,14 @@ export function updatePhysics(deltaTime, state) {
         // This check seems redundant now given the landing check handles off-runway landings,
         // but we can keep a simplified version for hitting terrain while flying low.
         // Check if bottom of plane hits ground level (0) when not over runway
-        const worldGroundLevel = 0.0; // Actual ground plane Y
-        const possiblyNearRunway = Math.abs(state.aircraft.group.position.x) < state.constants.RUNWAY_WIDTH &&
-                                   Math.abs(state.aircraft.group.position.z) < state.constants.RUNWAY_LENGTH / 2 + 20; // Extra buffer
-        if (state.aircraft.hasBeenAirborne && (state.aircraft.group.position.y - state.aircraft.body.geometry.parameters.height / 2) < worldGroundLevel) {
-             if (!possiblyNearRunway) {
-                  handleCrash(state, "Crashed into terrain!");
-             }
-        }
+        // const worldGroundLevel = 0.0; // Actual ground plane Y
+        // const possiblyNearRunway = Math.abs(state.aircraft.group.position.x) < state.constants.RUNWAY_WIDTH &&
+        //                            Math.abs(state.aircraft.group.position.z) < state.constants.RUNWAY_LENGTH / 2 + 20; // Extra buffer
+        // if (state.aircraft.hasBeenAirborne && (state.aircraft.group.position.y - state.aircraft.body.geometry.parameters.height / 2) < worldGroundLevel) {
+        //      if (!possiblyNearRunway) {
+        //           handleCrash(state, "Crashed into terrain!");
+        //      }
+        // }
     }
 
     // --- Terrain Ahead Warning (PULL UP) ---
@@ -262,7 +270,7 @@ export function updatePhysics(deltaTime, state) {
         });
         
         // Trigger crash only if at least 2 corners collide
-        if (collisionCount >= 2) {
+        if (collisionCount >= 1) {
             handleCrash(state, "Collision with terrain!");
         }
     }

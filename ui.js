@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { isOnRunway } from './runway.js';
 
 // Import constants
 // import { THRUST_FORCE, MAX_THRUST, REVERSE_THRUST_FORCE, PITCH_SPEED, ROLL_SPEED } from './constants.js';
@@ -29,6 +30,31 @@ export const speedometer = document.getElementById('speed-value');
     // window.autopilotEnabled = e.target.checked;
     // ...optional: update UI feedback...
 // });
+
+
+export function initialListeners(state) {
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // Add event listener for map selection
+        const mapCards = document.querySelectorAll('.map-card');
+        console.log(mapCards)
+
+        mapCards.forEach(card => {
+            card.addEventListener('click', () => {
+                mapCards.forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                state.selectedMap = card.dataset.map; // Store selected map in state
+            });
+        });
+
+        // Ensure a default map is selected
+        const defaultCard = document.querySelector('.map-card[data-map="mountain"]');
+        if (defaultCard) {
+            defaultCard.classList.add('selected');
+            state.selectedMap = 'mountain';
+        }
+    });
+}
 
 export const addListeners = (state) => {
 
@@ -62,6 +88,23 @@ export const addListeners = (state) => {
         });
         pauseButton.textContent = state.isPaused ? "Resume" : "Pause";
     // });
+
+
+    // Add keydown listener for toggling UI and aircraft visibility
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'h' || event.key === 'H') {
+            const uiElements = document.querySelectorAll('#info-ui, #gauges-container, #controls, #thrust-bar-container, #footer');
+            uiElements.forEach(element => {
+                element.style.visibility = element.style.visibility === 'hidden' ? 'visible' : 'hidden';
+            });
+        } else if(event.key === 'j' || event.key === 'J') {
+            if (state.aircraft) {
+                state.aircraft.group.traverse((child) => {
+                    child.visible = !child.visible;
+                });
+            }
+        } 
+    });
 }
 
 // Update UI with current flight data
@@ -132,6 +175,26 @@ export function updateUI(state, velocity, aircraft, bearing, thrust) {
     // Update compass (rotate the rose in the opposite direction of bearing)
     if (compassRose) {
         compassRose.style.transform = `rotate(${bearing}deg)`;
+        // Add yellow marker for direction towards the runway (0, y, -135)
+        const yellowMarker = document.getElementById('yellow-marker');
+        if (yellowMarker) {
+            const aircraftPosition = aircraft.position;
+
+            // Check if the aircraft is on the runway
+            if (!isOnRunway(aircraftPosition, state)) {
+                const directionToRunway = new THREE.Vector3(0, aircraftPosition.y, -135).sub(aircraftPosition).normalize();
+                const angleToRunway = Math.atan2(directionToRunway.x, directionToRunway.z);
+                const angleToRunwayDegrees = (THREE.MathUtils.radToDeg(angleToRunway) - bearing + 360) % 360;
+
+                // Position the yellow marker on the edge of the compass
+                const radius = 50; // Adjust this value to match the compass size
+                const x = radius * Math.sin(THREE.MathUtils.degToRad(360 - angleToRunwayDegrees));
+                const y = -radius * Math.cos(THREE.MathUtils.degToRad(360 - angleToRunwayDegrees));
+                yellowMarker.style.transform = `translate(${x}px, ${y}px) rotate(${360 - angleToRunwayDegrees}deg)`;
+            } else {
+                yellowMarker.style.transform = 'translate(-9999px, -9999px)'; // Hide the marker
+            }
+        }
     }
 
     // Update attitude indicator (Artificial Horizon)

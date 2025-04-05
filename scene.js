@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { addRunwayMarkings } from './runway.js';
+import { addRunwayMarkings, createRunway } from './runway.js';
 import { loadAircraftModel } from './aircraft.js';
 // import { state.constants.RUNWAY_WIDTH, state.constants.RUNWAY_LENGTH } from './constants.js';
 import { EXRLoader } from 'three/addons/loaders/EXRLoader.js';
@@ -14,6 +14,11 @@ import { getCurrentMapConfig } from './maps.js';
 const noise = new Noise(Math.random());
 
 export function createDaySky(state, skyType) {
+    //if black set a black color background
+    if (skyType === 'black') {
+        state.scene.background = new THREE.Color(0x000000);
+        return;
+    }
     new EXRLoader(state.loadingManager).load(textures.sky[skyType], (texture) => {
         texture.mapping = THREE.EquirectangularReflectionMapping;
         state.scene.background = texture;
@@ -38,7 +43,7 @@ export function createScene(state) {
     }
     
     if (mapConfig.doFog) {
-        state.scene.fog = new THREE.Fog(0xc0edff, 100, 900);
+        state.scene.fog = new THREE.Fog(mapConfig.fogColor || 0xc0edff, 500, 1900);
     }
     
     // Lighting (from map settings)
@@ -67,22 +72,17 @@ export function createScene(state) {
         state.terrainManager = new TerrainManager(state.scene, noise, state.loadingManager, mapConfig);
         const initPos = (state.aircraft && state.aircraft.group) ? state.aircraft.group.position : new THREE.Vector3(0, 0, 0);
         state.terrainManager.update(state, initPos);
-        state.updateTerrain = function(state, position) {
-            state.terrainManager.update(state, position);
+        state.updateTerrain = function(state, position, deltaTime) {
+            state.terrainManager.update(state, position, deltaTime);
         };
     }
 
     // Runway
-    const runwayGeometry = new THREE.BoxGeometry(state.constants.RUNWAY_WIDTH, 0.1, state.constants.RUNWAY_LENGTH);
-    const runwayMaterial = new THREE.MeshStandardMaterial({ color: 0x404040 });
-    const runway = new THREE.Mesh(runwayGeometry, runwayMaterial);
-    runway.position.set(0, 0.05, 0);
-    runway.receiveShadow = true;
-    state.scene.add(runway);
+    createRunway(state);
     
     if (/* DO_state.constants.RUNWAY_MARKINGS remains independent */ true) {
         // Runway markings
-        addRunwayMarkings(state);
+        // addRunwayMarkings(state);
     }
     
     // Trees if enabled in map config

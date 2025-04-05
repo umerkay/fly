@@ -1,6 +1,15 @@
 import * as THREE from 'three';
-// import { RUNWAY_WIDTH, RUNWAY_LENGTH } from './constants.js';
+import textures from './textures.js';
 
+// Helper function to load and configure textures
+function loadAndConfigureTexture(url, repeatX = 1, repeatY = 1, manager) {
+    const loader = manager ? new THREE.TextureLoader(manager) : new THREE.TextureLoader();
+    const texture = loader.load(url);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(repeatX, repeatY);
+    texture.anisotropy = 16;
+    return texture;
+}
 
 // --- Add Runway Markings ---
 export function addRunwayMarkings(state) {
@@ -178,4 +187,68 @@ export function updateRunwayLights(state, isNightMode) {
             light.material.emissiveIntensity = 0;
         }
     });
+}
+
+export function createRunway(state) {
+    // Load the road texture and associated maps
+    const roadTexture = loadAndConfigureTexture(
+        textures.ground["road2"].color,
+        1, // Repeat X
+        1 * state.constants.RUNWAY_LENGTH / state.constants.RUNWAY_WIDTH, // Repeat Y
+        state.loadingManager
+    );
+    const displacementMap = loadAndConfigureTexture(
+        textures.ground["road2"].displacement,
+        1,
+        1 * state.constants.RUNWAY_LENGTH / state.constants.RUNWAY_WIDTH,
+        state.loadingManager
+    );
+    // const aoMap = loadAndConfigureTexture(
+    //     textures.ground["road2"].ao,
+    //     1,
+    //     1 * state.constants.RUNWAY_LENGTH / state.constants.RUNWAY_WIDTH,
+    //     state.loadingManager
+    // );
+    const roughnessMap = loadAndConfigureTexture(
+        textures.ground["road2"].rough,
+        1,
+        1 * state.constants.RUNWAY_LENGTH / state.constants.RUNWAY_WIDTH,
+        state.loadingManager
+    );
+    const normalMap = loadAndConfigureTexture(
+        textures.ground["road2"].normal,
+        1,
+        1 * state.constants.RUNWAY_LENGTH / state.constants.RUNWAY_WIDTH,
+        state.loadingManager
+    );
+
+    // Create the runway geometry and material
+    const runwayGeometry = new THREE.BoxGeometry(state.constants.RUNWAY_WIDTH, 0, state.constants.RUNWAY_LENGTH);
+    const runwayMaterial = new THREE.MeshStandardMaterial({
+        map: roadTexture,
+        displacementMap: displacementMap,
+        // aoMap: aoMap,
+        roughnessMap: roughnessMap,
+        normalMap: normalMap,
+        color: 0x666666
+    });
+    const runway = new THREE.Mesh(runwayGeometry, runwayMaterial);
+    // runway.position.set(0, -0.85, 0);
+    runway.position.set(0, 0.54, 0);
+    runway.receiveShadow = true;
+    state.scene.add(runway);
+
+    // Runway markings
+    addRunwayMarkings(state);
+}
+
+export function isOnRunway(point, state) {
+    const runwayWidth = state.constants.RUNWAY_WIDTH;
+    const runwayLength = state.constants.RUNWAY_LENGTH;
+
+    // Check if the point's x and z (y in 2D plane) are within the runway boundaries
+    const isWithinX = point.x >= -runwayWidth / 2 && point.x <= runwayWidth / 2;
+    const isWithinZ = point.z >= -runwayLength / 2 && point.z <= runwayLength / 2;
+
+    return isWithinX && isWithinZ;
 }

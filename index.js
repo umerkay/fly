@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 // OrbitControls for debugging camera
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { updateUI, addListeners } from './ui.js';
+import { updateUI, addListeners, initialListeners } from './ui.js';
 import { setupControls, handleInput } from './controls.js';
 import { updatePhysics } from './physics.js';
 import { updateAircraft, resetAircraftState } from './aircraft.js';
@@ -12,6 +12,7 @@ import { setConstants } from './constants.js';
 // --- Global State Object ---
 const state = {
     scene: null,
+    frames: 0,
     camera: null,
     renderer: null,
     clock: null,
@@ -28,13 +29,15 @@ const state = {
         isCrashed: false,
         hasBeenAirborne: false,
         followCameraOffset: new THREE.Vector3(0, 5, -15),
+        followSmoothCameraOffset: new THREE.Vector3(0, 0, -5), // New offset for followSmooth
         cockpitCameraOffset: new THREE.Vector3(0, 0.05, 0.5),
         bearing: 0,
         airborneTimer: 0,
         confirmedAirborne: false
     },
     orbitControls: null,
-    cameraMode: 'follow',
+    followSmoothControls: null, // new followSmoothControls
+    cameraMode: 'followSmooth',
     isNightMode: false,  // new flag
     stars: null,         // reference to stars object
     isPaused: false,     // new pause flag
@@ -60,7 +63,7 @@ function init() {
 
     state.clock = new THREE.Clock();
 
-    state.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
+    state.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 5000);
 
     state.renderer = new THREE.WebGLRenderer({ antialias: true });
     state.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -83,6 +86,25 @@ function init() {
     // state.orbitControls.maxPolarAngle = Math.PI / 2;
     state.orbitControls.enabled = false; // Start with follow camera mode
 
+    // Add a second OrbitControls for followSmooth mode
+    state.followSmoothControls = new OrbitControls(state.camera, state.renderer.domElement);
+    state.followSmoothControls.enableDamping = true;
+    state.followSmoothControls.dampingFactor = 0.25;
+    state.followSmoothControls.screenSpacePanning = false;
+    state.followSmoothControls.minDistance = 15;
+    state.followSmoothControls.maxDistance = 15; // Fixed distance for followSmooth mode
+    state.followSmoothControls.enabled = false; // Disabled by default
+
+    // Set initial camera mode to followSmooth
+    // state.cameraMode = 'followSmooth';
+    // state.followSmoothControls.enabled = true;
+    // state.followSmoothControls.target.copy(state.aircraft.group.position);
+
+    // // Position the camera behind the airplane
+    // const initialCamPos = state.aircraft.group.position.clone().add(state.aircraft.followCameraOffset);
+    // state.camera.position.copy(initialCamPos);
+    // state.camera.lookAt(state.aircraft.group.position);
+
     // Window Resize Listener
     window.addEventListener('resize', onWindowResize.bind(null, state), false);
 
@@ -93,8 +115,9 @@ function init() {
     window.addEventListener('keydown', toggleCameraMode.bind(null, state));
     addListeners(state); // Add UI listeners
     // Start Animation Loop
+    // state.followSmoothControls.target.copy(state.aircraft.group.position).add(state.aircraft.followSmoothCameraOffset);
+
     animate(state);
-    console.log(state)
 }
 
 function resetGame(state) {
@@ -121,9 +144,11 @@ function onWindowResize(state) {
 function animate(state) {
     requestAnimationFrame(() => animate(state)); // Keep the loop going even if crashed to allow restart
     
+    state.frames++;
+
     if (!state.isPaused) {
-        state.updateTerrain && state.updateTerrain(state, state.aircraft.group.position); // Update terrain based on aircraft position
         const deltaTime = Math.min(0.05, state.clock.getDelta()); // Get delta time, clamp to prevent large jumps
+        state.updateTerrain && state.updateTerrain(state, state.aircraft.group.position, deltaTime); // Update terrain based on aircraft position
 
         // Update aircraft state
         // updateBlinkingLights(state, deltaTime); // Update blinking lights
@@ -150,6 +175,8 @@ function animate(state) {
     updateUI(state, state.aircraft.velocity, state.aircraft.group, state.aircraft.bearing, state.aircraft.thrust);
 }
 
+initialListeners(state); // Initial listeners for UI elements
+
 // --- Start ---
 document.getElementById('startButton').addEventListener('click', () => {
     const welcomeScreen = document.getElementById('welcome-screen');
@@ -157,7 +184,7 @@ document.getElementById('startButton').addEventListener('click', () => {
         welcomeScreen.style.display = 'none';
     }
     // Retrieve selected map from dropdown
-    state.selectedMap = document.getElementById('map-selector').value;
+    // state.selectedMap = document.getElementById('map-selector').value;
     // Show loading screen and hide canvas container during loading
     const loadingScreen = document.getElementById('loading-screen');
     if (loadingScreen) {

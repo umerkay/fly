@@ -10,13 +10,57 @@
     <!-- Welcome Screen -->
     <div id="welcome-screen">
         <h1>A Horrible Attempt at a Flight Simulator</h1>
-        <!-- Map Selector Added -->
-        <select id="map-selector">
-            <option value="mountain" selected>Mountains</option>
-            <option value="desert">Desert</option>
-            <option value="hilly">Hills</option>
-            <option value="snowfield">Snow Field</option>
-        </select>
+        <!-- Map Selector Updated -->
+        <div id="map-selector-grid">
+            <div class="map-card" data-map="mountain">
+                <img src="img/mountain.jpeg" alt="Mountains">
+                <h3>The Hindu Kush</h3>
+                <p>Barren, jagged, and raw — ancient stone peaks under an open sky.</p>
+            </div>
+            <div class="map-card" data-map="lavaland">
+                <img src="img/lava.jpeg" alt="Lava Land">
+                <h3>Mount Nyiragongo</h3>
+                <p>Home to one of the world’s most active and lava-filled craters.                </p>
+            </div>
+
+            <div class="map-card" data-map="iceberg">
+                <img src="img/iceberg.jpeg" alt="Iceberg">
+                <h3>Ilulissat Icefjord</h3>
+                <p>Giant icebergs drift through arctic waters — cold, remote, exotic.</p>
+                </div>
+                
+            <div class="map-card" data-map="ocean">
+                <img src="img/ocean.jpeg" alt="Ocean">
+                <h3>The Bahamas</h3>
+                <p>Crystal-clear waters, where white sands meet endless blue.</p>
+            </div>
+            <!-- <div class="map-card" data-map="hilly">
+                <img src="img/hills.jpeg" alt="Hills">
+                <h3>Tuscany Hills</h3>
+                <p>Gentle rolling green hills, overcast and gloomy.</p>
+            </div> -->
+            <div class="map-card" data-map="dolomites">
+                <img src="img/dolomites.jpeg" alt="Dolomites">
+                <h3>The Dolomites</h3>
+                <p>Jagged stone peaks tower above rolling green hills.</p>
+            </div>
+            <div class="map-card" data-map="cavern">
+                <img src="img/cavern.jpeg" alt="Cavern">
+                <h3>Virginia Grand Caverns</h3>
+                <p>An ancient underground world - stalactites whisper here.</p>
+            </div>  
+            <div class="map-card" data-map="snowfield">
+                <img src="img/snow.jpeg" alt="Snow Field">
+                <h3>Svalbard</h3>
+                <p>Endless snowy plains, ice-coated ground, and polar silence.
+                </p>
+            </div>
+            <div class="map-card" data-map="desert">
+                <img src="img/desert.jpeg" alt="Desert">
+                <h3>The Sahara</h3>
+                <p>The vast and endless sands of the Sahara — remote, quiet, endless.</p>
+            </div>
+        </div>
         <button id="startButton">Start</button>
         <!-- Instructions Added -->
         <div id="instructions">
@@ -86,6 +130,7 @@
                     <div class="compass-direction" id="south">S</div>
                     <div class="compass-direction" id="west">W</div>
                 </div>
+                <div id="yellow-marker"></div>
                 <div class="compass-pointer"></div>
                 <div class="gauge-center"></div>
                 <div class="gauge-label" >
@@ -146,8 +191,9 @@
         <button id="pauseButton">Pause</button>
     </div>
 
-    <footer>
+    <footer id="footer">
         With 💖 by <a href="https://umerkay.github.io/" target="_blank">Umerkay</a>
+        <a href="about.html">Why?</a>
     </footer>
 
     <script src="
