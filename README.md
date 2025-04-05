@@ -30,6 +30,8 @@ Special thanks to [The Coding Train](https://www.youtube.com/@TheCodingTrain) (f
 
 ## How to Use
 
+Might not work if you directly open the html file. You should probably use live server or just visit this [live demo](https://umerkay.github.io/fly/)
+
 1. **Start the Simulation**:
    - Open the `index.html` file in your browser.
    - On the welcome screen, select a map from the dropdown menu and click the "Start" button.
