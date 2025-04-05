@@ -18,6 +18,16 @@ Welcome to the **Simple Flight Simulator**! This project is a lightweight, brows
 - **Loading Screen**: Displays a loading screen before the simulation starts.
 - **Restart Button**: Restart the simulation from the beginning.
 
+## Why did I build it?
+
+For fun basically. It is a fun and experimental project designed to explore the basics of flight mechanics and user interaction in a 3D environment. It is intentionally simple.
+
+It started off with those Gemini 2.5 vibe coding posts from LinkedIn and videos on YouTube. I wanted to see what I could do. I did use AI a lot, mostly for boilerplate codes. But I spent excruciating hours on the flight mechanics and terrain generation.
+
+Really proud of the terrain generation. It uses Perlin and Fractal noise to generate realistic-looking terrains. All maps are generated procedurally, based on a seed, and are infinite. Every reasonable effort is made to make them look realistic and interesting (especially proud of the volcanic map). Every reasonable effort has also been made to make sure it runs on a potato. No, really. It has been performance optimized. Every decision step is taken to make sure of that.
+
+Special thanks to [The Coding Train](https://www.youtube.com/@TheCodingTrain) (for inspiration for terrain generation) and [Mentour Pilot](https://www.youtube.com/@MentourPilot) (for making me interested in aviation).
+
 ## How to Use
 
 1. **Start the Simulation**:
