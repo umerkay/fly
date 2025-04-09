@@ -12,7 +12,6 @@ import { getAircraftModel } from './aircraftModels.js';
 import { AchievementManager } from './achievements.js';
 
 // --- Global State Object ---
-// function initState() {
 const state = {
     scene: null,
     frames: 0,
@@ -45,16 +44,13 @@ const state = {
     isNightMode: false,  // new flag
     stars: null,         // reference to stars object
     isPaused: false,     // new pause flag
+    isLoaded: false,     // new loading flag
     loadingManager: null,
     achievementManager: new AchievementManager(),
 };
-    // return state;
-// }
 
 // --- Initialization ---
 function init() {
-    // const state = initState();
-
     state.aircraft.selectedModel = document.getElementById('aircraft-selector').value; // Get selected aircraft model from dropdown
     // Set constants
     setConstants(state);
@@ -69,6 +65,7 @@ function init() {
         if (container) {
             container.style.display = 'block';
         }
+        state.isLoaded = true; // Set loaded flag when complete
     };
 
     state.clock = new THREE.Clock();
@@ -93,7 +90,6 @@ function init() {
     state.orbitControls.screenSpacePanning = false;
     state.orbitControls.minDistance = 5;
     state.orbitControls.maxDistance = 1000;
-    // state.orbitControls.maxPolarAngle = Math.PI / 2;
     state.orbitControls.enabled = false; // Start with follow camera mode
 
     // Add a second OrbitControls for followSmooth mode
@@ -129,14 +125,11 @@ function init() {
     });
 
     // Start Animation Loop
-    // state.followSmoothControls.target.copy(state.aircraft.group.position).add(state.aircraft.followSmoothCameraOffset);
-
     animate(state);
 }
 
 function resetGame(state) {
     resetAircraftState(state);
-    // state.aircraft.keysPressed = {}; // Reset keysPressed to ensure no stale inputs
     state.aircraft.isCrashed = false; // Ensure the aircraft is no longer marked as crashed
     state.aircraft.thrust = 0; // Reset thrust to default
     state.aircraft.velocity.set(0, 0, 0); // Reset velocity
@@ -160,17 +153,13 @@ function animate(state) {
     
     state.frames++;
 
-    if (!state.isPaused) {
+    if (!state.isPaused && state.isLoaded) { // Only update physics when loaded
         const deltaTime = Math.min(0.05, state.clock.getDelta()); // Get delta time, clamp to prevent large jumps
         state.updateTerrain && state.updateTerrain(state, state.aircraft.group.position, deltaTime); // Update terrain based on aircraft position
-
-        // Update aircraft state
-        // updateBlinkingLights(state, deltaTime); // Update blinking lights
 
         if (!state.aircraft.isCrashed) { 
             state.aircraft.thrust = handleInput(state, deltaTime, state.aircraft.keysPressed, state.aircraft.group, state.aircraft.velocity, state.aircraft.angularVelocity, state.aircraft.isOnGround, state.aircraft.thrust);
             updatePhysics(deltaTime, state);
-            // You can eventually call the unified aircraft update function like this:
             updateAircraft(state, deltaTime);
         }
         
@@ -181,11 +170,9 @@ function animate(state) {
         if (state.cameraMode === 'orbit') {
             state.orbitControls.update();
         }
-        
-        state.renderer.render(state.scene, state.camera);
     }
-    // console.log(state.isPaused)
-    // Always update UI even when paused.
+    
+    state.renderer.render(state.scene, state.camera);
     updateUI(state, state.aircraft.velocity, state.aircraft.group, state.aircraft.bearing, state.aircraft.thrust);
 }
 
