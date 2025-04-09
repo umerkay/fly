@@ -11,7 +11,7 @@ export function getAircraftModel(modelName) {
             cockpitCameraOffset: [0, 0.05, 0.5],
             constants: {
                 GRAVITY: 20.0,
-                THRUST_FORCE: 50.0,
+                THRUST_FORCE: 5.0,
                 MAX_THRUST: 300.0,
                 REVERSE_THRUST_FORCE: 10.0,
                 DRAG_COEFFICIENT: 0.1,
