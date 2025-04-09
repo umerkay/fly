@@ -239,7 +239,7 @@ export class TerrainManager {
     }
 
     createTile(state, tileX, tileZ) {
-        const overlap = this.config.overlap || 0.2;
+        const overlap = this.config.overlap || 2;
         const geometry = new THREE.PlaneGeometry(this.tileSize + overlap, this.tileSize + overlap, this.segments, this.segments);
         geometry.rotateX(-Math.PI / 2);
         const positions = geometry.attributes.position;
@@ -334,7 +334,7 @@ export class TerrainManager {
     isColliding(state, position) {
         const { x: worldX, z: worldZ, y: pointY } = position;
         // If inside runway, terrain height is immediately 0
-        if (Math.abs(worldX) <= state.constants.RUNWAY_WIDTH && Math.abs(worldZ) <= state.constants.RUNWAY_LENGTH) {
+        if (Math.abs(worldX) <= state.constants.RUNWAY_WIDTH/2 && Math.abs(worldZ) <= state.constants.RUNWAY_LENGTH/2) {
             return false;
         }
         if(this.config.secondTerrain) {

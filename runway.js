@@ -223,19 +223,22 @@ export function createRunway(state) {
     );
 
     // Create the runway geometry and material
-    const runwayGeometry = new THREE.BoxGeometry(state.constants.RUNWAY_WIDTH, 0, state.constants.RUNWAY_LENGTH);
+    const runwayGeometry = new THREE.BoxGeometry(state.constants.RUNWAY_WIDTH, 0.1, state.constants.RUNWAY_LENGTH); // Add small height
     const runwayMaterial = new THREE.MeshStandardMaterial({
         map: roadTexture,
         displacementMap: displacementMap,
         // aoMap: aoMap,
         roughnessMap: roughnessMap,
         normalMap: normalMap,
-        color: 0x666666
+        color: 0x666666,
+        metalness: 0,
+        roughness: 1
     });
     const runway = new THREE.Mesh(runwayGeometry, runwayMaterial);
-    // runway.position.set(0, -0.85, 0);
-    runway.position.set(0, 0.54, 0);
     runway.receiveShadow = true;
+    runway.castShadow = false;
+
+    runway.position.set(0, -0.46, 0); // Adjust Y position to account for new height
     state.scene.add(runway);
 
     // Runway markings

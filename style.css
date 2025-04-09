@@ -17,9 +17,9 @@ body {
     position: absolute;
     top: 10px;
     left: 10px;
-    background-color: rgba(0, 0, 0, 0.5);
-    padding: 10px;
-    border-radius: 5px;
+    /* background-color: rgba(0, 0, 0, 0.5); */
+    /* padding: 10px; */
+    /* border-radius: 5px; */
     z-index: 100;
 }
 
@@ -538,7 +538,7 @@ body {
 }
 
 /* Enhanced Dropdown Style */
-#welcome-screen select#map-selector {
+#welcome-screen select#aircraft-selector {
     padding: 10px 15px;
     border-radius: 5px;
     border: 1px solid #444;
@@ -548,9 +548,10 @@ body {
     outline: none;
     transition: border-color 0.2s ease;
     cursor: pointer;
-    margin-bottom: 20px;
+    /* margin-bottom: 20px; */
+    /* border-radius: 100rem; */
 }
-#welcome-screen select#map-selector:focus {
+#welcome-screen select#aircraft-selector:focus {
     border-color: #888;
 }
 
@@ -623,4 +624,127 @@ footer a {
 
 footer a:hover {
     text-decoration: underline;
+}
+
+.mobile-only {
+    display: none !important;
+}
+
+/* Media Query for Mobile Devices */
+@media (max-width: 1000px) {
+
+    .mobile-only {
+        display: block !important;
+    }
+    body {
+        font-size: 14px;
+        position: relative;
+        height: 100vh;
+        max-height: 100vh;
+        max-width: 100vw;
+        overflow: hidden;
+    }
+
+    #welcome-screen {
+        justify-content: flex-start;
+        padding-top: 50px;
+        padding-bottom: 50px;
+        box-sizing: border-box;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    #welcome-screen h1 {
+        font-size: 2em;
+    }
+
+    #map-selector-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 10px;
+    }
+
+    .map-card img {
+        height: 100px;
+    }
+
+    .map-card h3 {
+        font-size: 1em;
+    }
+
+    .map-card p {
+        font-size: 0.8em;
+    }
+
+    #gauges-container {
+        flex-direction: column;
+        gap: 10px;
+        bottom: unset;
+        right: -25px;
+        top: -120px;
+        transform: scale(0.5, 0.5);
+    }
+
+    #controls {
+        flex-wrap: wrap;
+        gap: 5px;
+        padding: 0px;
+        /* bottom: 0px; */
+        left: 50%;
+        top: 40px;
+        bottom: unset;
+        transform: translateX(-50%);
+        width: max-content;
+        box-sizing: border-box;
+        position: absolute;
+        background-color: transparent;
+    }
+
+    #controls button {
+        font-size: 0.8em;
+        padding: 2px 5px;
+        opacity: 0.5;
+        background-color: #000;
+        color: white;
+        border-radius: 100rem;
+    }
+
+    #info-ui {
+        top: 0px;
+        /* left: 50%; */
+        width: max-content;
+        font-size: 0.8em;
+        /* transform: translateX(-50%); */
+        /* padding: 5px; */
+    }
+
+    #info-ui div {
+        margin-bottom: 3px;
+    }
+
+    #restartButton {
+        padding: 5px 10px;
+        font-size: 0.9em;
+    }
+
+    #thrust-bar-container {
+        height: 200px;
+        /* left: 10px; */
+        right: -25px;
+        /* bottom: 0px; */
+        top: 100px;
+        transform: translateY(-50%);
+        transform: scale(0.5, 0.5);
+    }
+
+    #thrust-label {
+        font-size: 10px;
+    }
+
+    footer {
+        font-size: 6px;
+        top: 10px;
+    }
+
+    #about * {
+    }
 }

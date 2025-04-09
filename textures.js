@@ -45,7 +45,7 @@ export default textures = {
 		"road2": { //Road006
 			"color": "textures/ground/road/Road006_1K-JPG_Color.jpg",
 			"displacement": "textures/ground/road/Road006_1K-JPG_Displacement.jpg",
-			"ao": "textures/ground/road/Road006_1K-JPG_AmbientOcclusion.jpg",
+			// "ao": "textures/ground/road/Road006_1K-JPG_AmbientOcclusion.jpg",
 			"rough": "textures/ground/road/Road006_1K-JPG_Roughness.jpg",
 			"normal": "textures/ground/road/Road006_1K-JPG_NormalGL.jpg"
 		},

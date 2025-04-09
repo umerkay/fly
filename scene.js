@@ -55,15 +55,15 @@ export function createScene(state) {
     if (mapConfig.doDirectionalLight) {
         state.directionalLight = new THREE.DirectionalLight(0xffffff, mapConfig.directionalLightIntensity || 1.5);
         state.directionalLight.position.set(100, 100, 50);
-        state.directionalLight.castShadow = true;
-        state.directionalLight.shadow.mapSize.width = 2048;
-        state.directionalLight.shadow.mapSize.height = 2048;
-        state.directionalLight.shadow.camera.near = 0.5;
-        state.directionalLight.shadow.camera.far = 500;
-        state.directionalLight.shadow.camera.left = -150;
-        state.directionalLight.shadow.camera.right = 150;
-        state.directionalLight.shadow.camera.top = 150;
-        state.directionalLight.shadow.camera.bottom = -150;
+        // state.directionalLight.castShadow = true;
+        // state.directionalLight.shadow.mapSize.width = 2048;
+        // state.directionalLight.shadow.mapSize.height = 2048;
+        // state.directionalLight.shadow.camera.near = 0.5;
+        // state.directionalLight.shadow.camera.far = 500;
+        // state.directionalLight.shadow.camera.left = -150;
+        // state.directionalLight.shadow.camera.right = 150;
+        // state.directionalLight.shadow.camera.top = 150;
+        // state.directionalLight.shadow.camera.bottom = -150;
         state.scene.add(state.directionalLight);
     }
     

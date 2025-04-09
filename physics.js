@@ -49,7 +49,13 @@ export function updatePhysics(deltaTime, state) {
     }
 
     const dragMagnitude = state.constants.DRAG_COEFFICIENT * speedSq;
-    const dragForce = state.aircraft.velocity.clone().normalize().multiplyScalar(-dragMagnitude);
+    // Calculate air density factor based on altitude (exponential decay)
+    const altitude = state.aircraft.group.position.y;
+    const minAirDensity = 0.2; // Minimum 20% of sea level air density
+    const airDensityFactor = Math.max(minAirDensity, Math.exp(-altitude / 5000)); // Limit minimum density
+    // Add extra drag when gear is deployed
+    const gearDragMultiplier = state.aircraft.gearDeployed ? 1.3 : 1.0; // 30% more drag with gear down
+    const dragForce = state.aircraft.velocity.clone().normalize().multiplyScalar(-dragMagnitude * airDensityFactor * gearDragMultiplier);
     if (!state.aircraft.isOnGround || speed > 0.1) {
         forces.add(dragForce);
     }
@@ -75,26 +81,6 @@ export function updatePhysics(deltaTime, state) {
     // --- Update Velocity ---
     state.aircraft.velocity.addScaledVector(forces, deltaTime);
 
-    // --- Calculate Roll-Induced Yaw (Banking Turn Physics) ---
-    // if (!state.aircraft.isOnGround && speed > 2.0) {  // Only apply when airborne and with sufficient speed
-    //     // Extract roll angle from quaternion
-    //     const euler = new THREE.Euler().setFromQuaternion(state.aircraft.group.quaternion, 'YXZ');
-    //     const rollAngle = euler.z;
-        
-    //     // Calculate yaw rate based on roll angle, speed, and lift
-    //     // Roll angle is in radians, sin(rollAngle) gives us the horizontal component
-    //     const turnFactor = 0.15; // Adjust this value to control turn sensitivity
-    //     const yawRate = Math.sin(rollAngle) * speed * turnFactor;
-        
-    //     // Apply yaw rotation (around Y axis)
-    //     const yawQuaternion = new THREE.Quaternion().setFromAxisAngle(
-    //         new THREE.Vector3(0, 1, 0),
-    //         yawRate * deltaTime
-    //     );
-    //     state.aircraft.group.quaternion.premultiply(yawQuaternion);
-    //     state.aircraft.group.quaternion.normalize();
-    // }
-
     // --- Ground State Determination ---
     const groundCheckPosition = state.aircraft.group.position.y - state.aircraft.body?.geometry.parameters.height / 2;
     const landingSinkRate = state.aircraft.velocity.y;
@@ -106,20 +92,30 @@ export function updatePhysics(deltaTime, state) {
     
     if (currentlyTouchingGround && onRunway) {
         // --- Actions when ON the runway ---
+        if (state.canRetractGear && !state.aircraft.gearDeployed) {
+            handleCrash(state, "Landing failed! Gear not deployed.");
+            return;
+        }
+
         if (!state.aircraft.isOnGround && state.aircraft.confirmedAirborne) {
             const sinkRate = Math.abs(landingSinkRate);
             if (speed > state.constants.MAX_SPEED_LANDING || sinkRate > state.constants.MAX_SINK_RATE_LANDING) {
                 let reason = "Landing failed!";
-                if (speed > state.constants.MAX_SPEED_LANDING) reason += ` Speed too high (${speed.toFixed(1)} > ${state.constants.MAX_SPEED_LANDING})`;
+                if (speed > state.constants.MAX_SPEED_LANDING) reason += ` Speed too high (${(speed * 3).toFixed(1)} > ${state.constants.MAX_SPEED_LANDING * 3})`;
                 if (sinkRate > state.constants.MAX_SINK_RATE_LANDING) reason += ` Sink rate too high (${sinkRate.toFixed(1)} > ${state.constants.MAX_SINK_RATE_LANDING})`;
                 handleCrash(state, reason);
             } else {
                 msg = 'Landed Successfully!';
+                // Reset airborne flags after successful landing
+                state.aircraft.hasBeenAirborne = false;
+                state.aircraft.confirmedAirborne = false;
+                state.aircraft.airborneTimer = 0;
+                state.achievementManager.handleGameEvents('firstLanding');
             }
         } else if (!state.aircraft.hasBeenAirborne) {
-            msg = `On Runway. Speed: ${speed.toFixed(1)} (Need ~${state.constants.TAKEOFF_SPEED} to lift)`;
+            msg = `On Runway. Speed: ${(speed * 3).toFixed(1)} (Need ~${state.constants.TAKEOFF_SPEED * 3} to lift)`;
         } else {
-            msg = `On Ground. Speed: ${speed.toFixed(1)}`;
+            msg = `On Ground. Speed: ${(speed * 3).toFixed(1)}`;
         }
         
         // Apply ground physics corrections
@@ -128,7 +124,7 @@ export function updatePhysics(deltaTime, state) {
         state.aircraft.group.position.y = state.constants.GROUND_LEVEL + state.aircraft.body.geometry.parameters.height / 2;
         
         // Apply ground friction
-        const frictionMagnitude = 0.2;
+        const frictionMagnitude = 0.2 * speed;
         const groundVelocity = new THREE.Vector3(state.aircraft.velocity.x, 0, state.aircraft.velocity.z);
         if (groundVelocity.lengthSq() > 0.01) {
              const frictionForce = groundVelocity.clone().normalize().multiplyScalar(-frictionMagnitude);
@@ -151,11 +147,15 @@ export function updatePhysics(deltaTime, state) {
         // Dampen angular velocity
         state.aircraft.angularVelocity.x *= (1.0 - deltaTime * 8.0);
         state.aircraft.angularVelocity.z *= (1.0 - deltaTime * 8.0);
+
+        state.aircraft.airborneTimer = 0;
         
     } else if (currentlyTouchingGround && !onRunway) {
         // NOT on runway: just let aircraft fly; terrain collision will handle crashes
         msg = 'Flying';
         state.aircraft.isOnGround = false;
+
+        state.aircraft.airborneTimer = 0;
     } else {
         // --- Actions when IN the air ---
         // Increment airborne timer when off ground
@@ -166,6 +166,8 @@ export function updatePhysics(deltaTime, state) {
             state.aircraft.confirmedAirborne = true;
             state.aircraft.hasBeenAirborne = true; // Also set the legacy flag
             msg = 'Airborne!';
+            console.log('Airborne!', state);
+            state.achievementManager.handleGameEvents('firstFlight');
         }
         
         if (state.aircraft.isOnGround) {
@@ -178,18 +180,6 @@ export function updatePhysics(deltaTime, state) {
 
         state.aircraft.isOnGround = false; // Definitely in the air now
 
-         // *** CRASH CHECK (Flying into ground off-runway) *** (Only if previously airborne)
-        // This check seems redundant now given the landing check handles off-runway landings,
-        // but we can keep a simplified version for hitting terrain while flying low.
-        // Check if bottom of plane hits ground level (0) when not over runway
-        // const worldGroundLevel = 0.0; // Actual ground plane Y
-        // const possiblyNearRunway = Math.abs(state.aircraft.group.position.x) < state.constants.RUNWAY_WIDTH &&
-        //                            Math.abs(state.aircraft.group.position.z) < state.constants.RUNWAY_LENGTH / 2 + 20; // Extra buffer
-        // if (state.aircraft.hasBeenAirborne && (state.aircraft.group.position.y - state.aircraft.body.geometry.parameters.height / 2) < worldGroundLevel) {
-        //      if (!possiblyNearRunway) {
-        //           handleCrash(state, "Crashed into terrain!");
-        //      }
-        // }
     }
 
     // --- Terrain Ahead Warning (PULL UP) ---
@@ -227,18 +217,6 @@ export function updatePhysics(deltaTime, state) {
         }
     }
 
-    // --- Correct Controls Based on Orientation ---
-    // Extract current orientation
-    const euler = new THREE.Euler().setFromQuaternion(state.aircraft.group.quaternion, 'YXZ');
-    // const rollAngle = euler.z;
-    
-    // Correct pitch control based on roll angle to prevent inversion
-    // When aircraft is rolled more than 90° in either direction, pitch control should be inverted
-    // if (Math.abs(rollAngle) > Math.PI/2) {
-    //     // Invert pitch control when aircraft is significantly rolled
-    //     state.aircraft.angularVelocity.x = -state.aircraft.angularVelocity.x;
-    // }
-
     // --- Update Position ---
     if (!state.aircraft.isCrashed) { 
          state.aircraft.group.position.addScaledVector(state.aircraft.velocity, deltaTime);
@@ -275,12 +253,6 @@ export function updatePhysics(deltaTime, state) {
         }
     }
 
-    // --- Crash Condition (Flying out of bounds - keep reasonable bounds) ---
-    // Keep this check relatively simple
-    // if (!state.aircraft.isCrashed && (state.aircraft.group.position.y < -5 || Math.abs(state.aircraft.group.position.x) > 600 || Math.abs(state.aircraft.group.position.z) > 600)) {
-    //      handleCrash(state, "Flew out of bounds!");
-    // }
-
     // Display the message if any
     if (msg) {
         showMessage(msg, 'lightblue');
@@ -296,4 +268,5 @@ export function handleCrash(state, reason) {
     state.aircraft.thrust = 0; // Cut thrust on crash
     showMessage(`CRASHED! ${reason}`, 'red');
     toggleRestartButton(true);
+    state.achievementManager.handleGameEvents('firstCrash');
 }

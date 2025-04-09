@@ -24,7 +24,6 @@ export function updateCamera(state) {
     // Update orbit controls target to follow the aircraft
     state.orbitControls.target.copy(state.aircraft.group.position);
   } else if (state.cameraMode === "cockpit") {
-    // Position the camera inside the cockpit
     const cockpitPos = state.aircraft.group.position
       .clone()
       .add(
@@ -41,14 +40,13 @@ export function updateCamera(state) {
     const lookAtPoint = cockpitPos.clone().add(forward);
     state.camera.lookAt(lookAtPoint);
   } else if (state.cameraMode === "followSmooth") {
-    // Smooth follow using followSmoothControls
     state.followSmoothControls.target.copy(state.aircraft.group.position);
+    const desiredCamPos = state.aircraft.group.position
+      .clone()
+      .add(state.aircraft.followSmoothCameraOffset);
 
     if (state.frames < 60) {
       // // Ensure the camera looks at the airplane from behind
-      const desiredCamPos = state.aircraft.group.position
-        .clone()
-        .add(new THREE.Vector3(0, 1, -5));
       state.camera.position.copy(desiredCamPos); // Smooth interpolation
       state.camera.lookAt(state.aircraft.group.position);
     }

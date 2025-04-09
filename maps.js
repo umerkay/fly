@@ -23,7 +23,7 @@ export const maps = {
         maxTerrainHeight: 120,
         tileSize: 1500,
         segments: 128,
-        activeRange: 1,
+        activeRange: 2,
         noiseScale: 0.002,
         groundType: 'grass',      // uses grass texture from textures.js
         skyType: 'overcast',
@@ -43,7 +43,7 @@ export const maps = {
         maxTerrainHeight: 200,
         tileSize: 1500,
         segments: 150,
-        activeRange: 2,
+        activeRange: 3,
         noiseScale: 0.0005,
         groundType: 'rock',      // uses sand texture from textures.js
         skyType: 'day',
@@ -74,7 +74,7 @@ export const maps = {
         maxTerrainHeight: 50,
         tileSize: 1500,
         segments: 64,
-        activeRange: 1,
+        activeRange: 3,
         noiseScale: 0.003,
         groundType: 'snow',      // uses snow texture from textures.js
         skyType: 'day',
@@ -261,7 +261,7 @@ export const maps = {
         maxTerrainHeight: 150,
         tileSize: 1500,
         segments: 128,
-        activeRange: 1,
+        activeRange: 3,
         noiseScale: 0.002,
         groundType: 'grass',      // uses grass texture from textures.js
         skyType: 'day',

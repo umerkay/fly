@@ -59,9 +59,10 @@ export function updateBlinkingLights(state, delta) {
 
 // --- Load Aircraft Model from GLTF file ---
 export function loadAircraftModel(state) {
-    const loader = new GLTFLoader();
+    const loader = new GLTFLoader(state.loadingManager); // Use loading manager from state
     const selectedModel = getAircraftModel(state.aircraft.selectedModel);
     Object.assign(state.constants, selectedModel.constants);
+    state.canRetractGear = selectedModel.canRetractGear || false;
 
     loader.load(
         selectedModel.modelPath,
@@ -73,33 +74,55 @@ export function loadAircraftModel(state) {
                     node.castShadow = true;
                     node.receiveShadow = true;
                 }
+                // Find and store propeller if name matches
+                if (selectedModel.propellorName && node.name === selectedModel.propellorName) {
+                    state.aircraft.propellorPivot = node;
+                }
             });
             state.aircraft.model.rotation.set(...selectedModel.rotation);
             state.aircraft.model.position.set(...selectedModel.position);
 
-            // const prop = state.aircraft.model.getObjectByName(selectedModel.propellorName);
-            // if (prop) {
-            //     const bbox = new THREE.Box3().setFromObject(prop);
-            //     const center = new THREE.Vector3();
-            //     bbox.getCenter(center);
-            //     const pivot = new THREE.Group();
-            //     pivot.position.copy(center);
-            //     prop.position.sub(center);
-            //     pivot.add(prop);
-            //     state.aircraft.model.add(pivot);
-            //     state.aircraft.propellorPivot = pivot;
-            // }
             state.aircraft.aesthetic = state.aircraft.model;
             state.aircraft.group.add(state.aircraft.aesthetic);
+            state.aircraft.aesthetic.visible = true; // Show ground model by default
 
             const bodyDimensions = new THREE.Box3().setFromObject(state.aircraft.model);
             const bodySize = bodyDimensions.getSize(new THREE.Vector3());
-            const bodyGeometry = new THREE.BoxGeometry(bodySize.x, bodySize.y, bodySize.z);
+            const bodyGeometry = new THREE.BoxGeometry(bodySize.x * (selectedModel.hitBoxScaleX || 1), bodySize.y * (selectedModel.hitBoxScaleY || 1), bodySize.z * (selectedModel.hitBoxScaleZ || 1));
             const bodyMaterial = new THREE.MeshBasicMaterial({ visible: false });
             state.aircraft.body = new THREE.Mesh(bodyGeometry, bodyMaterial);
             state.aircraft.group.add(state.aircraft.body);
 
             resetAircraftState(state);
+            console.log(state.aircraft)
+
+            // If airModelPath exists, load it
+            if (selectedModel.airModelPath) {
+                loader.load(
+                    selectedModel.airModelPath,
+                    function(airGltf) {
+                        state.aircraft.airModel = airGltf.scene;
+                        state.aircraft.airModel.scale.set(...selectedModel.scale);
+                        state.aircraft.airModel.traverse(function(node) {
+                            if (node.isMesh) {
+                                node.castShadow = true;
+                                node.receiveShadow = true;
+                            }
+                        });
+                        state.aircraft.airModel.rotation.set(...selectedModel.rotation);
+                        state.aircraft.airModel.position.set(0, -0.1, 0);
+                        state.aircraft.group.add(state.aircraft.airModel);
+                        state.doHideAirModel = true;
+                        // state.aircraft.airModel.visible = false; // Hide air model by default
+                    },
+                    function(xhr) {
+                        console.log((xhr.loaded / xhr.total * 100) + '% loaded Air Model');
+                    },
+                    function(error) {
+                        console.error('An error happened during air model loading:', error);
+                    }
+                );
+            }
         },
         function(xhr) {
             console.log((xhr.loaded / xhr.total * 100) + '% loaded');

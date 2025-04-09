@@ -1,212 +1,330 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="icons/icon-192.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Horrible Flight Simulator</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#000000" />
+    <script src="https://cdn.jsdelivr.net/npm/nipplejs@0.9.0/dist/nipplejs.min.js"></script>
+    
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    
+    <script>
+      if ('serviceWorker' in navigator && location.hostname !== 'localhost') {
+        navigator.serviceWorker.register('/sw.js')
+          .then(reg => console.log('Service worker registered:', reg.scope))
+          .catch(err => console.error('SW registration failed:', err));
+      }
+    </script>
+  </head>
+  <body>
     <!-- Welcome Screen -->
     <div id="welcome-screen">
-        <h1>A Horrible Attempt at a Flight Simulator</h1>
-        <!-- Map Selector Updated -->
-        <div id="map-selector-grid">
-            <div class="map-card" data-map="mountain">
-                <img src="img/mountain.jpeg" alt="Mountains">
-                <h3>The Hindu Kush</h3>
-                <p>Barren, jagged, and raw — ancient stone peaks under an open sky.</p>
-            </div>
-            <div class="map-card" data-map="lavaland">
-                <img src="img/lava.jpeg" alt="Lava Land">
-                <h3>Mount Nyiragongo</h3>
-                <p>Home to one of the world’s most active and lava-filled craters.                </p>
-            </div>
+      <h1>A Horrible Attempt at a Flight Simulator</h1>
+      <!-- Map Selector Updated -->
+      <div id="map-selector-grid">
+        <div class="map-card" data-map="mountain">
+          <img src="img/mountain.jpeg" alt="Mountains" />
+          <h3>The Hindu Kush</h3>
+          <p>
+            Barren, jagged, and raw — ancient stone peaks under an open sky.
+          </p>
+        </div>
+        <div class="map-card" data-map="lavaland">
+          <img src="img/lava.jpeg" alt="Lava Land" />
+          <h3>Mount Nyiragongo</h3>
+          <p>Home to one of the world’s most active and lava-filled craters.</p>
+        </div>
 
-            <div class="map-card" data-map="iceberg">
-                <img src="img/iceberg.jpeg" alt="Iceberg">
-                <h3>Ilulissat Icefjord</h3>
-                <p>Giant icebergs drift through arctic waters — cold, remote, exotic.</p>
-                </div>
-                
-            <div class="map-card" data-map="ocean">
-                <img src="img/ocean.jpeg" alt="Ocean">
-                <h3>The Bahamas</h3>
-                <p>Crystal-clear waters, where white sands meet endless blue.</p>
-            </div>
-            <!-- <div class="map-card" data-map="hilly">
+        <div class="map-card" data-map="iceberg">
+          <img src="img/iceberg.jpeg" alt="Iceberg" />
+          <h3>Ilulissat Icefjord</h3>
+          <p>
+            Giant icebergs drift through arctic waters — cold, remote, exotic.
+          </p>
+        </div>
+
+        <div class="map-card" data-map="ocean">
+          <img src="img/ocean.jpeg" alt="Ocean" />
+          <h3>The Bahamas</h3>
+          <p>Crystal-clear waters, where white sands meet endless blue.</p>
+        </div>
+        <!-- <div class="map-card" data-map="hilly">
                 <img src="img/hills.jpeg" alt="Hills">
                 <h3>Tuscany Hills</h3>
                 <p>Gentle rolling green hills, overcast and gloomy.</p>
             </div> -->
-            <div class="map-card" data-map="dolomites">
-                <img src="img/dolomites.jpeg" alt="Dolomites">
-                <h3>The Dolomites</h3>
-                <p>Jagged stone peaks tower above rolling green hills.</p>
-            </div>
-            <div class="map-card" data-map="cavern">
-                <img src="img/cavern.jpeg" alt="Cavern">
-                <h3>Virginia Grand Caverns</h3>
-                <p>An ancient underground world - stalactites whisper here.</p>
-            </div>  
-            <div class="map-card" data-map="snowfield">
-                <img src="img/snow.jpeg" alt="Snow Field">
-                <h3>Svalbard</h3>
-                <p>Endless snowy plains, ice-coated ground, and polar silence.
-                </p>
-            </div>
-            <div class="map-card" data-map="desert">
-                <img src="img/desert.jpeg" alt="Desert">
-                <h3>The Sahara</h3>
-                <p>The vast and endless sands of the Sahara — remote, quiet, endless.</p>
-            </div>
+        <div class="map-card" data-map="dolomites">
+          <img src="img/dolomites.jpeg" alt="Dolomites" />
+          <h3>The Dolomites</h3>
+          <p>Jagged stone peaks tower above rolling green hills.</p>
         </div>
+        <div class="map-card" data-map="cavern">
+          <img src="img/cavern.jpeg" alt="Cavern" />
+          <h3>Virginia Grand Caverns</h3>
+          <p>An ancient underground world - stalactites whisper here.</p>
+        </div>
+        <div class="map-card" data-map="snowfield">
+          <img src="img/snow.jpeg" alt="Snow Field" />
+          <h3>Svalbard</h3>
+          <p>Endless snowy plains, ice-coated ground, and polar silence.</p>
+        </div>
+        <div class="map-card" data-map="desert">
+          <img src="img/desert.jpeg" alt="Desert" />
+          <h3>The Sahara</h3>
+          <p>
+            The vast and endless sands of the Sahara — remote, quiet, endless.
+          </p>
+        </div>
+      </div>
+      <div style="display: flex; gap: 1rem; align-items: center; justify-content: center;">
+        <select id="aircraft-selector">
+            <option value="cessna" selected>Cessna</option>
+            <!-- <option value="otter">Twin Ottter</option> -->
+            <option value="jet">G-III</option>
+        </select>
         <button id="startButton">Start</button>
-        <!-- Instructions Added -->
-        <div id="instructions">
-            <p>Controls:</p>
-            <ul>
-                <li>W: Increase thrust</li>
-                <li>S: Decrease thrust</li>
-                <li>C: Shift camera</li>
-                <li>Arrow Keys: Pitch and turn</li>
-            </ul>
-        </div>
+      </div>
+      <!-- Instructions Added -->
+      <div id="instructions">
+        <p>Controls:</p>
+        <ul>
+          <li>W/S: Increase/Decrease Thrust</li>
+          <li>Arrow Keys: Pitch and Turn</li>
+          <li>G: Retract/Deploy Gear</li>
+          <li>C: Toggle Camera Mode</li>
+        </ul>
+      </div>
     </div>
-    
+
     <!-- Loading Screen -->
-    <div id="loading-screen" style="display: none;">Loading...</div>
-    
+    <div id="loading-screen" style="display: none">Loading...</div>
+
     <!-- Thrust bar on left side -->
     <div id="thrust-bar-container">
-        <div id="thrust-bar"></div>
-        <div id="thrust-label">THRUST</div>
+      <div id="thrust-bar"></div>
+      <div id="thrust-label">THRUST</div>
     </div>
 
     <div id="info-ui">
-        <!-- <div>Speed: <span id="speed">0.00</span></div> -->
-        <!-- <div>Thrust: <span id="thrust-value">0.00</span></div> -->
-        <!-- <div>Altitude: <span id="altitude">0.00</span></div> -->
-        <!-- <div>Pitch: <span id="pitch">0.00</span>&deg;</div> -->
-        <!-- <div>Roll: <span id="roll">0.00</span>&deg;</div> -->
-        <!-- <div class="ui-element">Bearing: <span id="bearing">0</span>°</div> -->
-        <div id="message">On Runway. Increase thrust (W) to take off.</div>
-        <button id="restartButton" style="display: none;">Restart</button>
+      <!-- <div>Speed: <span id="speed">0.00</span></div> -->
+      <!-- <div>Thrust: <span id="thrust-value">0.00</span></div> -->
+      <!-- <div>Altitude: <span id="altitude">0.00</span></div> -->
+      <!-- <div>Pitch: <span id="pitch">0.00</span>&deg;</div> -->
+      <!-- <div>Roll: <span id="roll">0.00</span>&deg;</div> -->
+       <!-- <div id="airborne-status"></div> -->
+      <!-- <div class="ui-element">Bearing: <span id="bearing">0</span>°</div> -->
+      <div id="message">On Runway. Increase thrust (W) to take off.</div>
+      <button id="restartButton" style="display: none">Restart</button>
     </div>
 
     <!-- Gauges container for bottom right -->
     <div id="gauges-container">
-        <!-- Speedometer -->
-        <div class="gauge-wrapper" id="speedometer-wrapper">
-            <div class="gauge" id="speedometer">
-                <div class="gauge-center"></div>
-                <div class="gauge-needle" id="speed-needle"></div>
-                <div class="gauge-label">
-                    <span id="speed-value">--</span>
-                    <span class="unit">mph</span>
-                </div>
-                <div class="gauge-ticks">
-                    <div class="tick" style="transform: rotate(-125deg)"><span>0</span></div>
-                    <div class="tick" style="transform: rotate(-100deg)"><span>5</span></div>
-                    <div class="tick" style="transform: rotate(-75deg)"><span>10</span></div>
-                    <div class="tick" style="transform: rotate(-50deg)"><span>15</span></div>
-                    <div class="tick" style="transform: rotate(-25deg)"><span>20</span></div>
-                    <div class="tick" style="transform: rotate(0deg)"><span>25</span></div>
-                    <div class="tick" style="transform: rotate(25deg)"><span>30</span></div>
-                    <div class="tick" style="transform: rotate(50deg)"><span>35</span></div>
-                    <div class="tick" style="transform: rotate(75deg)"><span>40</span></div>
-                    <div class="tick" style="transform: rotate(100deg)"><span>45</span></div>
-                    <div class="tick" style="transform: rotate(125deg)"><span>50</span></div>
-                </div>
+      <!-- Speedometer -->
+      <div class="gauge-wrapper" id="speedometer-wrapper">
+        <div class="gauge" id="speedometer">
+          <div class="gauge-center"></div>
+          <div class="gauge-needle" id="speed-needle"></div>
+          <div class="gauge-label">
+            <span id="speed-value">--</span>
+            <span class="unit">mph</span>
+          </div>
+          <div class="gauge-ticks">
+            <div class="tick" style="transform: rotate(-125deg)">
+              <span>0</span>
             </div>
-        </div>
-        
-        <!-- Compass -->
-        <div class="gauge-wrapper" id="compass-wrapper">
-            <div class="gauge" id="compass">
-                <div class="compass-rose">
-                    <div class="compass-direction" id="north">N</div>
-                    <div class="compass-direction" id="east">E</div>
-                    <div class="compass-direction" id="south">S</div>
-                    <div class="compass-direction" id="west">W</div>
-                </div>
-                <div id="yellow-marker"></div>
-                <div class="compass-pointer"></div>
-                <div class="gauge-center"></div>
-                <div class="gauge-label" >
-                    <span id="heading-label">--</span>
-                    <span class="unit">°</span>
-                </div>
+            <div class="tick" style="transform: rotate(-100deg)">
+              <span>60</span>
             </div>
+            <div class="tick" style="transform: rotate(-75deg)">
+              <span>120</span>
+            </div>
+            <div class="tick" style="transform: rotate(-50deg)">
+              <span>180</span>
+            </div>
+            <div class="tick" style="transform: rotate(-25deg)">
+              <span>240</span>
+            </div>
+            <div class="tick" style="transform: rotate(0deg)">
+              <span>300</span>
+            </div>
+            <div class="tick" style="transform: rotate(25deg)">
+              <span>360</span>
+            </div>
+            <div class="tick" style="transform: rotate(50deg)">
+              <span>420</span>
+            </div>
+            <div class="tick" style="transform: rotate(75deg)">
+              <span>480</span>
+            </div>
+            <div class="tick" style="transform: rotate(100deg)">
+              <span>540</span>
+            </div>
+            <div class="tick" style="transform: rotate(125deg)">
+              <span>600</span>
+            </div>
+          </div>
         </div>
+      </div>
 
-        <!-- Attitude Indicator -->
-        <div class="gauge-wrapper" id="attitude-indicator-wrapper">
-            <div class="attitude-indicator" id="attitude-indicator">
-                <div class="attitude-horizon" id="horizon"></div>
-                <div class="pitch-markings" id="pitch-markings">
-                    <div class="pitch-marking" data-angle="-20"><span>20</span></div>
-                    <div class="pitch-marking" data-angle="-10"><span>10</span></div>
-                    <div class="pitch-horizon-line"></div>
-                    <div class="pitch-marking" data-angle="10"><span>10</span></div>
-                    <div class="pitch-marking" data-angle="20"><span>20</span></div>
-                </div>
-                <!-- Updated Roll Markings -->
-                <div class="roll-markings" id="roll-markings">
-                    <div class="roll-mark" style="position:absolute; left:35px; top:17px;"></div>
-                    <div class="roll-mark" style="position:absolute; left:42.9px; top:13px;"></div>
-                    <div class="roll-mark" style="position:absolute; left:51.3px; top:10.8px;"></div>
-                    <div class="roll-mark center-roll" style="position:absolute; left:60px; top:10px;"></div>
-                    <div class="roll-mark" style="position:absolute; left:68.7px; top:10.8px;"></div>
-                    <div class="roll-mark" style="position:absolute; left:77.1px; top:13px;"></div>
-                    <div class="roll-mark" style="position:absolute; left:85px; top:17px;"></div>
-                </div>
-                <div class="center-indicator" id="center-indicator"></div>
-                <div class="attitude-frame"></div>
-            </div>
+      <!-- Compass -->
+      <div class="gauge-wrapper" id="compass-wrapper">
+        <div class="gauge" id="compass">
+          <div class="compass-rose">
+            <div class="compass-direction" id="north">N</div>
+            <div class="compass-direction" id="east">E</div>
+            <div class="compass-direction" id="south">S</div>
+            <div class="compass-direction" id="west">W</div>
+          </div>
+          <div id="yellow-marker"></div>
+          <div class="compass-pointer"></div>
+          <div class="gauge-center"></div>
+          <div class="gauge-label">
+            <span id="heading-label">--</span>
+            <span class="unit">°</span>
+          </div>
         </div>
+      </div>
 
-        <!-- Altimeter Gauge -->
-        <div class="gauge-wrapper" id="altimeter-wrapper">
-            <div class="altimeter">
-                <div class="altimeter-dial" id="altimeter-dial">
-                    <div class="altimeter-needle" id="altimeter-needle"></div>
-                </div>
-                <div class="altimeter-label">
-                    <span id="altimeter-value">0</span>
-                    <span class="unit">ft</span>
-                </div>
-                <div class="altimeter-vertical-speed" id="vertical-speed">0.0 ft/s</div>
-            </div>
+      <!-- Attitude Indicator -->
+      <div class="gauge-wrapper" id="attitude-indicator-wrapper">
+        <div class="attitude-indicator" id="attitude-indicator">
+          <div class="attitude-horizon" id="horizon"></div>
+          <div class="pitch-markings" id="pitch-markings">
+            <div class="pitch-marking" data-angle="-20"><span>20</span></div>
+            <div class="pitch-marking" data-angle="-10"><span>10</span></div>
+            <div class="pitch-horizon-line"></div>
+            <div class="pitch-marking" data-angle="10"><span>10</span></div>
+            <div class="pitch-marking" data-angle="20"><span>20</span></div>
+          </div>
+          <!-- Updated Roll Markings -->
+          <div class="roll-markings" id="roll-markings">
+            <div
+              class="roll-mark"
+              style="position: absolute; left: 35px; top: 17px"
+            ></div>
+            <div
+              class="roll-mark"
+              style="position: absolute; left: 42.9px; top: 13px"
+            ></div>
+            <div
+              class="roll-mark"
+              style="position: absolute; left: 51.3px; top: 10.8px"
+            ></div>
+            <div
+              class="roll-mark center-roll"
+              style="position: absolute; left: 60px; top: 10px"
+            ></div>
+            <div
+              class="roll-mark"
+              style="position: absolute; left: 68.7px; top: 10.8px"
+            ></div>
+            <div
+              class="roll-mark"
+              style="position: absolute; left: 77.1px; top: 13px"
+            ></div>
+            <div
+              class="roll-mark"
+              style="position: absolute; left: 85px; top: 17px"
+            ></div>
+          </div>
+          <div class="center-indicator" id="center-indicator"></div>
+          <div class="attitude-frame"></div>
         </div>
+      </div>
+
+      <!-- Altimeter Gauge -->
+      <div class="gauge-wrapper" id="altimeter-wrapper">
+        <div class="altimeter">
+          <div class="altimeter-dial" id="altimeter-dial">
+            <div class="altimeter-needle" id="altimeter-needle"></div>
+          </div>
+          <div class="altimeter-label">
+            <span id="altimeter-value">0</span>
+            <span class="unit">ft</span>
+          </div>
+          <div class="altimeter-vertical-speed" id="vertical-speed">
+            0.0 ft/s
+          </div>
+        </div>
+      </div>
     </div>
-    
+
+    <!-- Airborne Status -->
+    <!-- <div id="airborne-status" style="position: fixed; bottom: 10px; left: 10px; color: white; font-family: monospace;"></div> -->
+
     <div id="container"></div>
 
     <div id="controls">
-        <!-- ...existing controls... -->
-        <button id="nightmodeButton">Night</button>
-        <button id="engineOffButton">Engine Off</button>
-        <button id="parkBrakesButton">Park Brakes</button>
-        <button id="pauseButton">Pause</button>
+      <!-- ...existing controls... -->
+      <button id="nightmodeButton">Night</button>
+      <button id="engineOffButton">Engine Off</button>
+      <button id="parkBrakesButton">Park Brakes</button>
+      <button id="gearToggleButton">Retract Gear</button>
+      <button id="pauseButton">Pause</button>
+      <button id="exitButton">Exit</button>
+    </div>
+
+    <div id="joystick-container" class="mobile-only">
+      <div id="joystick-thrust" class="joystick"></div>
+      <div id="joystick-direction" class="joystick"></div>
     </div>
 
     <footer id="footer">
-        With 💖 by <a href="https://umerkay.github.io/" target="_blank">Umerkay</a>
-        <a href="about.html">Why?</a>
+      With 💖 by
+      <a href="https://umerkay.github.io/" target="_blank">Umerkay</a>
+      <a href="about.html">Why?</a>
     </footer>
 
-    <script src="
-    https://cdn.jsdelivr.net/npm/noisejs@2.1.0/index.min.js
-    "></script>
+    <style>
+      #joystick-container {
+        position: fixed;
+        bottom: 10%;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        pointer-events: none;
+      }
+      .joystick {
+        width: 150px;
+        height: 150px;
+        pointer-events: auto;
+      }
+      #joystick-thrust {
+        margin-left: 10px;
+      }
+      #joystick-direction {
+        margin-right: 10px;
+      }
+      .mobile-only {
+        display: none;
+      }
+      @media (max-width: 768px) {
+        .mobile-only {
+          display: flex;
+        }
+      }
+      * {
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/noisejs@2.1.0/index.min.js"></script>
+    
     <script type="importmap">
-        {
-            "imports": {
-              "three": "https://cdn.jsdelivr.net/npm/three@0.175.0/build/three.module.js",
-              "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.175.0/examples/jsm/"
-            }
-          }
-      </script>
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.175.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.175.0/examples/jsm/"
+        }
+      }
+    </script>
     <script type="module" src="index.js"></script>
-</body>
+  </body>
 </html>

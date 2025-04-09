@@ -70,3 +70,11 @@ a {
     color: #ffffff;
     text-decoration: none;
 }
+
+/* Media Query for Mobile Devices */
+@media (max-width: 1000px) {
+    body {
+        height: max-content;
+        min-height: 100vh;
+    }
+}
