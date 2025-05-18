@@ -499,7 +499,7 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    z-index: 200;
+    z-index: 155;
 }
 #welcome-screen h1 {
     font-size: 3em;
@@ -507,6 +507,21 @@ body {
     text-align: center;
 }
 #welcome-screen button {
+    padding: 10px 20px;
+    font-size: 1.2em;
+    cursor: pointer;
+    border-radius: 100rem;
+    border: none;
+    background-color: #d7d7d7;
+    color: black;
+    transition-duration: 300ms;
+}
+
+#settingsButton {
+    z-index: 1600;
+}
+
+.settings-button {
     padding: 10px 20px;
     font-size: 1.2em;
     cursor: pointer;
@@ -606,12 +621,12 @@ body {
 footer {
     text-align: center;
     font-size: 24px;
-    width: 100%;
+    width: max-content;
     color: white;
-    /* background-color: #f9f9f9; */
-    /* border-top: 1px solid #ddd; */
-    z-index: 2000;
+    transform: translateX(-50%);
+    z-index: 155;
     position: fixed;
+    left: 50%;
     top: 20px;
     font-family: Arial, Helvetica, sans-serif;
 }

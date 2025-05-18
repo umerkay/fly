@@ -4,6 +4,10 @@ import { showMessage, toggleRestartButton } from './ui.js';
 export function updatePhysics(deltaTime, state) {
     if (state.aircraft.isCrashed) return;
 
+    // Add tracking variables if they don't exist
+    state.aircraft.groundProximityTimer = state.aircraft.groundProximityTimer || 0;
+    state.aircraft.maxAltitude = state.aircraft.maxAltitude || 0;
+
     let msg = null; // Initialize message variable
     
     // Force engine off: set thrust to zero when engine off is active
@@ -194,6 +198,13 @@ export function updatePhysics(deltaTime, state) {
         const terrainAhead = checkPoints.some(point => state.terrainManager.isColliding(state, point));
         if (terrainAhead) {
             msg = "Terrain ahead! PULL UP!";
+            if (!state.aircraft.terrainWarningActive) {
+                state.aircraft.terrainWarningActive = true;
+            }
+        } else if (state.aircraft.terrainWarningActive) {
+            state.aircraft.terrainWarningActive = false;
+
+            // state.achievementManager.handleGameEvents("terrain_dodger")
         }
     }
 
@@ -214,7 +225,30 @@ export function updatePhysics(deltaTime, state) {
         const groundProximity = gpwsPoints.some(point => state.terrainManager.isColliding(state, point));
         if (groundProximity) {
             msg = "Ground proximity warning!";
+            state.aircraft.groundProximityTimer += deltaTime;
+            if (state.aircraft.groundProximityTimer >= 60) { // 1 minute
+                state.achievementManager.handleGameEvents('groundHugger');
+            }
+        } else {
+            state.aircraft.groundProximityTimer = 0;
         }
+    }
+
+    // Check altitude achievements
+    const currentAltitude = state.aircraft.group.position.y;
+    // state.aircraft.maxAltitude = Math.max(state.aircraft.maxAltitude, currentAltitude);
+
+    if (currentAltitude >= 500) {
+        state.achievementManager.handleGameEvents('altitude500');
+    } else if (currentAltitude >= 1000) {
+        state.achievementManager.handleGameEvents('altitude1000');
+    } else if (currentAltitude >= 2500) {
+        state.achievementManager.handleGameEvents('altitude2500');
+    }
+
+    // Check for nose dive
+    if (state.aircraft.velocity.y <= -50) {
+        state.achievementManager.handleGameEvents('nose_diver');
     }
 
     // --- Update Position ---
@@ -261,12 +295,21 @@ export function updatePhysics(deltaTime, state) {
 } // End of updatePhysics function
 
 export function handleCrash(state, reason) {
-    if (state.aircraft.isCrashed) return; // Prevent multiple crash triggers
+    if (state.aircraft.isCrashed) return;
     state.aircraft.isCrashed = true;
-    state.aircraft.velocity.set(0, 0, 0); // Stop movement
+    state.aircraft.velocity.set(0, 0, 0);
     state.aircraft.angularVelocity.set(0,0,0);
-    state.aircraft.thrust = 0; // Cut thrust on crash
+    state.aircraft.thrust = 0;
     showMessage(`CRASHED! ${reason}`, 'red');
     toggleRestartButton(true);
-    state.achievementManager.handleGameEvents('firstCrash');
+
+    // Check if crash is on runway
+    const onRunway = Math.abs(state.aircraft.group.position.x) < state.constants.RUNWAY_WIDTH / 2 &&
+                     Math.abs(state.aircraft.group.position.z) < state.constants.RUNWAY_LENGTH / 2;
+    
+    if (onRunway) {
+        state.achievementManager.handleGameEvents('firstCrashLanding');
+    } else {
+        state.achievementManager.handleGameEvents('firstCrash');
+    }
 }

@@ -71,12 +71,12 @@ const modelFiles = [
   '/model/model.glb',
   '/model/G3_LARC_GND_0824.glb',
 ];
-const cacheName = 'flightsim-v1.0.4'; // ⬅️ Bump version to invalidate old cache
+const cacheName = 'flightsim-v1.0.5'; // ⬅️ Bump version to invalidate old cache
 
 const filesToCache = [
   '/',
-  '/index.html',
-  '/style.css',
+  // '/index.html',
+  // '/style.css',
   '/index.js',
   '/about.html',
   '/img/mountain.jpeg',

@@ -184,6 +184,10 @@ document.getElementById('startButton').addEventListener('click', () => {
     if (welcomeScreen) {
         welcomeScreen.style.display = 'none';
     }
+    
+    // Hide settings menu if it's open when starting
+    document.getElementById('settings-menu').style.display = 'none';
+    
     // Retrieve selected map from dropdown
     // state.selectedMap = document.getElementById('map-selector').value;
     // Show loading screen and hide canvas container during loading
@@ -209,4 +213,26 @@ document.getElementById('startButton').addEventListener('click', () => {
     }
 
     init();
+});
+
+// Move these event listeners outside of init()
+document.getElementById('settingsButton')?.addEventListener('click', () => {
+    document.getElementById('settings-menu').style.display = 'block';
+});
+
+document.getElementById('closeSettingsButton')?.addEventListener('click', () => {
+    document.getElementById('settings-menu').style.display = 'none';
+});
+
+document.getElementById('resetAchievementsButton')?.addEventListener('click', () => {
+    if (confirm('Are you sure you want to reset all achievements?')) {
+        state.achievementManager.clearAchievements();
+        showToast('Achievements Reset', 'All achievements have been cleared');
+    }
+});
+
+document.getElementById('settings-menu')?.addEventListener('click', (event) => {
+    if (event.target.id === 'settings-menu') {
+        document.getElementById('settings-menu').style.display = 'none';
+    }
 });
